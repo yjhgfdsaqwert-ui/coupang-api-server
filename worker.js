@@ -1272,10 +1272,8 @@ try {
   try {
 
     const errorMessage =
-      "AI 처리 중 오류가 발생했습니다.\n" +
-      "`" +
-      error.message +
-      "`";
+  "AI 처리 중 오류가 발생했습니다.\n" +
+  error.message;
 
 
     await this.sendDiscordMessage(
