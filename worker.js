@@ -8,9 +8,13 @@ const GEMINI_MODEL =
 "gemini-3.1-flash-lite";
 
 const INTENTS =
-(1 << 0) |   // GUILDS
-(1 << 9) |   // GUILD_MESSAGES
-(1 << 15);   // MESSAGE_CONTENT
+(1 << 0) |
+(1 << 9) |
+(1 << 15);
+
+// ============================================================
+// Worker
+// ============================================================
 
 export default {
 async fetch(request, env) {
@@ -23,9 +27,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type"
 };
 
-// ================================
+
+// ========================================================
 // CORS
-// ================================
+// ========================================================
 
 if (request.method === "OPTIONS") {
   return new Response(null, {
@@ -35,9 +40,9 @@ if (request.method === "OPTIONS") {
 }
 
 
-// ================================
-// 메인 채팅 기록 페이지
-// ================================
+// ========================================================
+// API 서버 메인 페이지
+// ========================================================
 
 if (
   request.method === "GET" &&
@@ -49,16 +54,17 @@ if (
       status: 200,
       headers: {
         ...corsHeaders,
-        "Content-Type": "text/html; charset=UTF-8"
+        "Content-Type":
+          "text/html; charset=UTF-8"
       }
     }
   );
 }
 
 
-// ================================
-// 채팅 기록 API
-// ================================
+// ========================================================
+// 대화 기록
+// ========================================================
 
 if (
   request.method === "GET" &&
@@ -93,9 +99,9 @@ if (
 }
 
 
-// ================================
-// 대리구매 신청 API
-// ================================
+// ========================================================
+// 대리구매 신청
+// ========================================================
 
 if (
   request.method === "POST" &&
@@ -116,8 +122,10 @@ if (
       );
     }
 
+
     const data =
       await request.json();
+
 
     if (
       !data.name ||
@@ -134,6 +142,7 @@ if (
         }
       );
     }
+
 
     const message = {
       content:
@@ -154,19 +163,23 @@ if (
         data.code
     };
 
+
     const discordResponse =
       await fetch(
         env.APPLY,
         {
           method: "POST",
+
           headers: {
             "Content-Type":
               "application/json"
           },
+
           body:
             JSON.stringify(message)
         }
       );
+
 
     if (!discordResponse.ok) {
       const discordText =
@@ -187,10 +200,12 @@ if (
       );
     }
 
+
     return new Response(
       "신청이 정상적으로 접수되었습니다.",
       {
         status: 200,
+
         headers: {
           ...corsHeaders,
           "Content-Type":
@@ -200,6 +215,7 @@ if (
     );
 
   } catch (error) {
+
     console.error(
       "대리구매 신청 오류:",
       error
@@ -216,15 +232,16 @@ if (
 }
 
 
-// ================================
-// 문의 API
-// ================================
+// ========================================================
+// 문의
+// ========================================================
 
 if (
   request.method === "POST" &&
   url.pathname === "/api/inquiry"
 ) {
   try {
+
     if (!env.INQUIRY) {
       console.error(
         "INQUIRY Secret이 설정되지 않았습니다."
@@ -239,8 +256,10 @@ if (
       );
     }
 
+
     const data =
       await request.json();
+
 
     if (!data.inquiry) {
       return new Response(
@@ -252,27 +271,33 @@ if (
       );
     }
 
+
     const message = {
       content:
         "**문의**\n\n" +
         data.inquiry
     };
 
+
     const discordResponse =
       await fetch(
         env.INQUIRY,
         {
           method: "POST",
+
           headers: {
             "Content-Type":
               "application/json"
           },
+
           body:
             JSON.stringify(message)
         }
       );
 
+
     if (!discordResponse.ok) {
+
       const discordText =
         await discordResponse.text();
 
@@ -291,10 +316,12 @@ if (
       );
     }
 
+
     return new Response(
       "문의가 정상적으로 접수되었습니다.",
       {
         status: 200,
+
         headers: {
           ...corsHeaders,
           "Content-Type":
@@ -304,6 +331,7 @@ if (
     );
 
   } catch (error) {
+
     console.error(
       "문의 처리 오류:",
       error
@@ -320,12 +348,14 @@ if (
 }
 
 
-// ================================
+// ========================================================
 // Discord Gateway 시작
-// ================================
+// ========================================================
 
 if (url.pathname === "/start") {
+
   try {
+
     const id =
       env.DISCORD_BOT.idFromName("main");
 
@@ -340,8 +370,10 @@ if (url.pathname === "/start") {
     return response;
 
   } catch (error) {
+
     return new Response(
-      `Start error: ${error.message}`,
+      "Start error: " +
+      error.message,
       {
         status: 500,
         headers: corsHeaders
@@ -351,12 +383,14 @@ if (url.pathname === "/start") {
 }
 
 
-// ================================
-// Discord Gateway 상태
-// ================================
+// ========================================================
+// 상태 확인
+// ========================================================
 
 if (url.pathname === "/status") {
+
   try {
+
     const id =
       env.DISCORD_BOT.idFromName("main");
 
@@ -368,8 +402,10 @@ if (url.pathname === "/status") {
     );
 
   } catch (error) {
+
     return new Response(
-      `Status error: ${error.message}`,
+      "Status error: " +
+      error.message,
       {
         status: 500,
         headers: corsHeaders
@@ -390,15 +426,16 @@ return new Response(
 
 },
 
-// ================================
-// 매분 Gateway 연결 확인
-// ================================
+// ========================================================
+// 매분 실행
+// ========================================================
 
 async scheduled(event, env, ctx) {
-const id =
-env.DISCORD_BOT.idFromName("main");
 
 ```
+const id =
+  env.DISCORD_BOT.idFromName("main");
+
 const stub =
   env.DISCORD_BOT.get(id);
 
@@ -419,11 +456,13 @@ ctx.waitUntil(
 export class DiscordBot {
 
 constructor(state, env) {
+
+```
 this.state = state;
 this.env = env;
 
-```
 this.socket = null;
+
 this.connected = false;
 this.identified = false;
 
@@ -434,15 +473,18 @@ this.reconnectTimer = null;
 }
 
 async fetch(request) {
-const url =
-new URL(request.url);
 
 ```
-// ================================
-// Gateway 시작
-// ================================
+const url =
+  new URL(request.url);
+
+
+// ========================================================
+// 시작
+// ========================================================
 
 if (url.pathname === "/start") {
+
   await this.connect();
 
   return new Response(
@@ -453,11 +495,12 @@ if (url.pathname === "/start") {
 }
 
 
-// ================================
+// ========================================================
 // 상태
-// ================================
+// ========================================================
 
 if (url.pathname === "/status") {
+
   return new Response(
     JSON.stringify({
       connected:
@@ -476,11 +519,12 @@ if (url.pathname === "/status") {
 }
 
 
-// ================================
-// 채팅 기록
-// ================================
+// ========================================================
+// 기록
+// ========================================================
 
 if (url.pathname === "/history") {
+
   const history =
     await this.getHistory();
 
@@ -488,6 +532,7 @@ if (url.pathname === "/history") {
     JSON.stringify(history),
     {
       status: 200,
+
       headers: {
         "Content-Type":
           "application/json; charset=UTF-8"
@@ -515,6 +560,7 @@ async connect() {
 
 ```
 if (this.socket) {
+
   if (
     this.socket.readyState ===
       WebSocket.OPEN ||
@@ -531,6 +577,7 @@ const token =
 
 
 if (!token) {
+
   console.error(
     "AI_coupang_discord 환경변수가 없습니다."
   );
@@ -592,7 +639,10 @@ try {
     event => {
 
       console.log(
-        `Discord Gateway CLOSED: ${event.code} ${event.reason || ""}`
+        "Discord Gateway CLOSED: " +
+        event.code +
+        " " +
+        (event.reason || "")
       );
 
       this.connected =
@@ -623,31 +673,34 @@ try {
   );
 
 
-  // 9분 후 안전한 재연결
+  // 9분마다 재연결
 
-  setTimeout(() => {
+  setTimeout(
+    () => {
 
-    if (
-      this.socket === socket &&
-      socket.readyState ===
-        WebSocket.OPEN
-    ) {
+      if (
+        this.socket === socket &&
+        socket.readyState ===
+          WebSocket.OPEN
+      ) {
 
-      console.log(
-        "9분 경과 - Discord Gateway 재연결"
-      );
-
-      try {
-
-        socket.close(
-          1000,
-          "Scheduled reconnect"
+        console.log(
+          "9분 경과 - Discord Gateway 재연결"
         );
 
-      } catch {}
-    }
+        try {
 
-  }, 9 * 60 * 1000);
+          socket.close(
+            1000,
+            "Scheduled reconnect"
+          );
+
+        } catch {}
+      }
+
+    },
+    9 * 60 * 1000
+  );
 
 
 } catch (error) {
@@ -668,6 +721,10 @@ try {
 ```
 
 }
+
+// ==========================================================
+// 재연결
+// ==========================================================
 
 scheduleReconnect() {
 
@@ -694,7 +751,7 @@ this.reconnectTimer =
 }
 
 // ==========================================================
-// Gateway 메시지 처리
+// Gateway 이벤트 처리
 // ==========================================================
 
 handleGatewayMessage(rawData) {
@@ -727,19 +784,21 @@ try {
 const {
   op,
   d,
-  s,
   t
 } = payload;
 
 
 console.log(
-  `Discord Gateway 이벤트: op=${op}, t=${t || "NONE"}`
+  "Discord Gateway 이벤트: op=" +
+  op +
+  ", t=" +
+  (t || "NONE")
 );
 
 
-// ================================
-// OP 10 - Hello
-// ================================
+// ========================================================
+// Hello
+// ========================================================
 
 if (op === 10) {
 
@@ -759,9 +818,9 @@ if (op === 10) {
 }
 
 
-// ================================
-// OP 11 - Heartbeat ACK
-// ================================
+// ========================================================
+// Heartbeat ACK
+// ========================================================
 
 if (op === 11) {
 
@@ -773,9 +832,9 @@ if (op === 11) {
 }
 
 
-// ================================
-// OP 7 - Reconnect
-// ================================
+// ========================================================
+// Reconnect
+// ========================================================
 
 if (op === 7) {
 
@@ -789,9 +848,9 @@ if (op === 7) {
 }
 
 
-// ================================
-// OP 9 - Invalid Session
-// ================================
+// ========================================================
+// Invalid Session
+// ========================================================
 
 if (op === 9) {
 
@@ -799,17 +858,20 @@ if (op === 9) {
     "Discord Invalid Session"
   );
 
-  setTimeout(() => {
-    this.identify();
-  }, 3000);
+  setTimeout(
+    () => {
+      this.identify();
+    },
+    3000
+  );
 
   return;
 }
 
 
-// ================================
-// Dispatch Event
-// ================================
+// ========================================================
+// Dispatch
+// ========================================================
 
 if (op === 0) {
 
@@ -824,7 +886,11 @@ if (op === 0) {
     );
 
     console.log(
-      `봇 사용자: ${d?.user?.username || "Unknown"}`
+      "봇 사용자: " +
+      (
+        d?.user?.username ||
+        "Unknown"
+      )
     );
 
     console.log(
@@ -838,9 +904,13 @@ if (op === 0) {
   }
 
 
-  if (t === "MESSAGE_CREATE") {
+  if (
+    t === "MESSAGE_CREATE"
+  ) {
 
-    this.handleMessageCreate(d);
+    this.handleMessageCreate(
+      d
+    );
 
     return;
   }
@@ -877,7 +947,9 @@ this.heartbeatTimer =
 clearHeartbeat() {
 
 ```
-if (this.heartbeatTimer) {
+if (
+  this.heartbeatTimer
+) {
 
   clearInterval(
     this.heartbeatTimer
@@ -928,7 +1000,7 @@ try {
 }
 
 // ==========================================================
-// Discord Identify
+// Identify
 // ==========================================================
 
 identify() {
@@ -971,8 +1043,10 @@ try {
 
         properties: {
           os: "linux",
+
           browser:
             "cloudflare-worker",
+
           device:
             "cloudflare-worker"
         }
@@ -995,6 +1069,10 @@ try {
 ```
 
 }
+
+// ==========================================================
+// 재연결
+// ==========================================================
 
 closeAndReconnect() {
 
@@ -1031,7 +1109,7 @@ this.scheduleReconnect();
 }
 
 // ==========================================================
-// Discord 메시지 처리
+// Discord 메시지
 // ==========================================================
 
 async handleMessageCreate(message) {
@@ -1042,14 +1120,18 @@ if (!message) {
 }
 
 
-// 봇 메시지는 무시
+// 봇 메시지 무시
 
-if (message.author?.bot) {
+if (
+  message.author?.bot
+) {
   return;
 }
 
 
-// 허용 채널
+// ========================================================
+// 허용된 채널
+// ========================================================
 
 const devChannel =
   this.env.AI_coupang_discord_dev_channel;
@@ -1070,7 +1152,8 @@ if (
 ) {
 
   console.log(
-    `허용되지 않은 채널 메시지 무시: ${channelId}`
+    "허용되지 않은 채널 메시지 무시: " +
+    channelId
   );
 
   return;
@@ -1087,7 +1170,8 @@ if (!content) {
 
 
 console.log(
-  `Discord 메시지 수신: ${content}`
+  "Discord 메시지 수신: " +
+  content
 );
 
 
@@ -1096,18 +1180,25 @@ console.log(
 // ========================================================
 
 await this.saveMessage({
+
   type: "user",
 
-  channelId,
+  channelId:
+
+    channelId,
 
   username:
+
     message.author?.global_name ||
     message.author?.username ||
     "사용자",
 
-  content,
+  content:
+
+    content,
 
   timestamp:
+
     Date.now()
 });
 
@@ -1135,7 +1226,7 @@ try {
 
 
   // ======================================================
-  // Discord 답장
+  // Discord 답변
   // ======================================================
 
   await this.sendDiscordMessage(
@@ -1149,15 +1240,23 @@ try {
   // ======================================================
 
   await this.saveMessage({
+
     type: "ai",
 
-    channelId,
+    channelId:
 
-    username: "AI",
+      channelId,
 
-    content: answer,
+    username:
+
+      "AI",
+
+    content:
+
+      answer,
 
     timestamp:
+
       Date.now()
   });
 
@@ -1173,7 +1272,10 @@ try {
   try {
 
     const errorMessage =
-      `AI 처리 중 오류가 발생했습니다.\n\`${error.message}\``;
+      "AI 처리 중 오류가 발생했습니다.\n" +
+      "`" +
+      error.message +
+      "`";
 
 
     await this.sendDiscordMessage(
@@ -1183,16 +1285,23 @@ try {
 
 
     await this.saveMessage({
+
       type: "ai",
 
-      channelId,
+      channelId:
 
-      username: "AI",
+        channelId,
+
+      username:
+
+        "AI",
 
       content:
+
         errorMessage,
 
       timestamp:
+
         Date.now()
     });
 
@@ -1229,7 +1338,9 @@ if (!apiKey) {
 
 
 const endpoint =
-  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+  "https://generativelanguage.googleapis.com/v1beta/models/" +
+  GEMINI_MODEL +
+  ":generateContent";
 
 
 console.log(
@@ -1253,6 +1364,7 @@ const response =
 
       body:
         JSON.stringify({
+
           contents: [
             {
               role: "user",
@@ -1267,6 +1379,7 @@ const response =
           ],
 
           generationConfig: {
+
             temperature:
               0.7,
 
@@ -1288,13 +1401,18 @@ const text =
 if (!response.ok) {
 
   console.error(
-    `Gemini API 오류 ${response.status}:`,
+    "Gemini API 오류 " +
+    response.status +
+    ":",
     text
   );
 
 
   throw new Error(
-    `Gemini API ${response.status}: ${text}`
+    "Gemini API " +
+    response.status +
+    ": " +
+    text
   );
 }
 
@@ -1371,8 +1489,6 @@ if (!token) {
 }
 
 
-// Discord 2000자 제한
-
 const chunks =
   this.splitMessage(
     content,
@@ -1386,13 +1502,17 @@ for (
 
   const response =
     await fetch(
-      `${DISCORD_API}/channels/${channelId}/messages`,
+      DISCORD_API +
+      "/channels/" +
+      channelId +
+      "/messages",
       {
         method: "POST",
 
         headers: {
           "Authorization":
-            `Bot ${token}`,
+            "Bot " +
+            token,
 
           "Content-Type":
             "application/json"
@@ -1414,13 +1534,18 @@ for (
 
 
     console.error(
-      `Discord 메시지 전송 실패 ${response.status}:`,
+      "Discord 메시지 전송 실패 " +
+      response.status +
+      ":",
       errorText
     );
 
 
     throw new Error(
-      `Discord API ${response.status}: ${errorText}`
+      "Discord API " +
+      response.status +
+      ": " +
+      errorText
     );
   }
 
@@ -1434,7 +1559,7 @@ for (
 }
 
 // ==========================================================
-// 메시지 저장
+// 대화 저장
 // ==========================================================
 
 async saveMessage(message) {
@@ -1446,11 +1571,12 @@ const history =
   ) || [];
 
 
-history.push(message);
+history.push(
+  message
+);
 
 
-// 너무 커지는 것을 방지.
-// 최신 10,000개만 유지.
+// 최신 10,000개 유지
 
 const trimmed =
   history.slice(-10000);
@@ -1465,25 +1591,23 @@ await this.state.storage.put(
 }
 
 // ==========================================================
-// 메시지 가져오기
+// 대화 불러오기
 // ==========================================================
 
 async getHistory() {
 
 ```
-const history =
+return (
   await this.state.storage.get(
     "chat_history"
-  ) || [];
-
-
-return history;
+  )
+) || [];
 ```
 
 }
 
 // ==========================================================
-// Discord 메시지 분할
+// 메시지 분할
 // ==========================================================
 
 splitMessage(
@@ -1529,7 +1653,8 @@ while (
 
 
   if (cut < 1) {
-    cut = maxLength;
+    cut =
+      maxLength;
   }
 
 
@@ -1552,6 +1677,7 @@ if (
   remaining.length >
   0
 ) {
+
   chunks.push(
     remaining
   );
@@ -1571,109 +1697,132 @@ return chunks;
 const CHAT_HISTORY_HTML = `<!DOCTYPE html>
 
 <html lang="ko">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+>
 
 <title>Coupang AI 서버</title>
 
 <style>
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    background: #f5f6f8;
-    color: #202124;
-    font-family:
-        Arial,
-        "Noto Sans KR",
-        sans-serif;
+  margin: 0;
+  background: #f5f6f8;
+  color: #202124;
+  font-family:
+    Arial,
+    "Noto Sans KR",
+    sans-serif;
 }
 
 header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 
-    padding: 22px;
+  padding: 22px;
 
-    background: rgba(255,255,255,.95);
-    border-bottom: 1px solid #ddd;
+  background: rgba(255,255,255,.96);
 
-    backdrop-filter: blur(10px);
+  border-bottom:
+    1px solid #ddd;
+
+  backdrop-filter:
+    blur(10px);
 }
 
 header h1 {
-    margin: 0;
-    font-size: 24px;
+  margin: 0;
+  font-size: 24px;
 }
 
 header p {
-    margin: 6px 0 0;
-    color: #777;
+  margin: 6px 0 0;
+  color: #777;
 }
 
 #status {
-    margin-top: 10px;
-    font-size: 13px;
-    color: #777;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #777;
 }
 
 #history {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 25px 16px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+
+  padding:
+    25px 16px 60px;
 }
 
 .message {
-    margin-bottom: 18px;
-    padding: 17px 19px;
+  margin-bottom: 18px;
 
-    border-radius: 15px;
-    background: white;
+  padding:
+    17px 19px;
 
-    box-shadow:
-        0 2px 10px rgba(0,0,0,.05);
+  border-radius: 15px;
+
+  background: white;
+
+  box-shadow:
+    0 2px 10px rgba(0,0,0,.05);
 }
 
 .message.user {
-    border-left: 5px solid #5865f2;
+  border-left:
+    5px solid #5865f2;
 }
 
 .message.ai {
-    border-left: 5px solid #43a047;
+  border-left:
+    5px solid #43a047;
 }
 
 .meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+  display: flex;
 
-    margin-bottom: 10px;
+  justify-content:
+    space-between;
 
-    font-size: 13px;
-    color: #777;
+  gap: 10px;
+
+  margin-bottom: 10px;
+
+  font-size: 13px;
+
+  color: #777;
 }
 
 .name {
-    font-weight: 700;
-    color: #333;
+  font-weight: 700;
+  color: #333;
 }
 
 .content {
-    white-space: pre-wrap;
-    word-break: break-word;
+  white-space: pre-wrap;
+  word-break: break-word;
 
-    line-height: 1.6;
+  line-height: 1.6;
 }
 
 .empty {
-    padding: 80px 20px;
-    text-align: center;
-    color: #888;
+  padding: 80px 20px;
+
+  text-align: center;
+
+  color: #888;
 }
 
 </style>
@@ -1708,163 +1857,181 @@ Discord AI 대화 기록
 
 function escapeHTML(text) {
 
-    return String(text)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+  return String(text)
+
+    .replaceAll("&", "&amp;")
+
+    .replaceAll("<", "&lt;")
+
+    .replaceAll(">", "&gt;")
+
+    .replaceAll('"', "&quot;")
+
+    .replaceAll("'", "&#039;");
 }
 
 
 function formatDate(timestamp) {
 
-    const date =
-        new Date(timestamp);
+  var date =
+    new Date(timestamp);
 
-    return date.toLocaleString(
-        "ko-KR",
-        {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit"
-        }
-    );
+  return date.toLocaleString(
+    "ko-KR",
+    {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }
+  );
 }
 
 
 async function loadHistory() {
 
-    try {
+  try {
 
-        const response =
-            await fetch(
-                "/api/history"
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "HTTP " +
-                response.status
-            );
-        }
+    var response =
+      await fetch(
+        "/api/history"
+      );
 
 
-        const messages =
-            await response.json();
+    if (!response.ok) {
 
-
-        const container =
-            document.getElementById(
-                "history"
-            );
-
-
-        const status =
-            document.getElementById(
-                "status"
-            );
-
-
-        status.textContent =
-            "총 " +
-            messages.length +
-            "개의 메시지";
-
-
-        if (
-            !messages.length
-        ) {
-
-            container.innerHTML =
-                '<div class="empty">아직 저장된 대화가 없습니다.</div>';
-
-            return;
-        }
-
-
-        container.innerHTML =
-            messages
-                .map(message => {
-
-                    const type =
-                        message.type === "ai"
-                            ? "ai"
-                            : "user";
-
-
-                    return \`
-                        <article class="message \${type}">
-
-                            <div class="meta">
-
-                                <span class="name">
-                                    \${escapeHTML(
-                                        message.username ||
-                                        (type === "ai"
-                                            ? "AI"
-                                            : "사용자")
-                                    )}
-                                </span>
-
-                                <span>
-                                    \${formatDate(
-                                        message.timestamp
-                                    )}
-                                </span>
-
-                            </div>
-
-                            <div class="content">
-                                \${escapeHTML(
-                                    message.content
-                                )}
-                            </div>
-
-                        </article>
-                    \`;
-
-                })
-                .join("");
-
-
-    } catch (error) {
-
-        console.error(
-            error
-        );
-
-
-        document.getElementById(
-            "status"
-        ).textContent =
-            "대화 기록을 불러오지 못했습니다.";
-
-
-        document.getElementById(
-            "history"
-        ).innerHTML =
-            '<div class="empty">대화 기록을 불러오지 못했습니다.</div>';
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
     }
+
+
+    var messages =
+      await response.json();
+
+
+    var container =
+      document.getElementById(
+        "history"
+      );
+
+
+    var status =
+      document.getElementById(
+        "status"
+      );
+
+
+    status.textContent =
+      "총 " +
+      messages.length +
+      "개의 메시지";
+
+
+    if (
+      !messages.length
+    ) {
+
+      container.innerHTML =
+        '<div class="empty">' +
+        '아직 저장된 대화가 없습니다.' +
+        '</div>';
+
+      return;
+    }
+
+
+    var html = "";
+
+
+    messages.forEach(
+      function(message) {
+
+        var type =
+          message.type === "ai"
+            ? "ai"
+            : "user";
+
+
+        var username =
+          message.username ||
+          (
+            type === "ai"
+              ? "AI"
+              : "사용자"
+          );
+
+
+        html +=
+          '<article class="message ' +
+          type +
+          '">' +
+
+          '<div class="meta">' +
+
+          '<span class="name">' +
+          escapeHTML(username) +
+          '</span>' +
+
+          '<span>' +
+          formatDate(
+            message.timestamp
+          ) +
+          '</span>' +
+
+          '</div>' +
+
+          '<div class="content">' +
+          escapeHTML(
+            message.content
+          ) +
+          '</div>' +
+
+          '</article>';
+      }
+    );
+
+
+    container.innerHTML =
+      html;
+
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+
+    document.getElementById(
+      "status"
+    ).textContent =
+      "대화 기록을 불러오지 못했습니다.";
+
+
+    document.getElementById(
+      "history"
+    ).innerHTML =
+      '<div class="empty">' +
+      '대화 기록을 불러오지 못했습니다.' +
+      '</div>';
+  }
 }
 
 
 loadHistory();
 
 
-// 5초마다 최신 기록 확인
-
 setInterval(
-    loadHistory,
-    5000
+  loadHistory,
+  5000
 );
 
 </script>
 
 </body>
+
 </html>`;
